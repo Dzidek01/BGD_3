@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  # 1. Baza danych (Hurtownia Danych) - Twoja obecna
+  db:
+    image: postgres:16
+    container_name: big_data_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: big_data_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Spark (Konsument danych z kolejki) - Twój obecny
+  spark-pipeline:
+    image: apache/spark:3.5.0
+    container_name: spark_worker
+    user: root
+    command: tail -f /dev/null
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - db
+      - kafka
+
+  # 3. Apache Kafka (System Kolejkowy w nowym trybie KRaft - lżejszy)
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka_broker
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  # 4. Apache Airflow (Orkiestrator - tryb standalone)
+  airflow:
+    image: apache/airflow:2.9.0-python3.10
+    container_name: airflow_standalone
+    command: standalone
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW_HOME=/opt/airflow
+    volumes:
+      - ./orchestration/dags:/opt/airflow/dags # Tu będą leżeć pliki konfiguracyjne Airflow
+      - .:/opt/airflow/project # Dostęp do kodu projektu
+      - /var/run/docker.sock:/var/run/docker.sock # Pozwala Airflow kontrolować Sparka
+    user: root # Wymagane, aby Airflow mógł korzystać z docker.sock
+    depends_on:
+      - db
+      - kafka
+
+volumes:
+  postgres_data:

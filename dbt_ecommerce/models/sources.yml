@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: public
+    description: "Raw event data ingested from the source CSV file"
+    tables:
+      - name: raw_events

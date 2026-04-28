@@ -1,0 +1,13 @@
+dbt_ecommerce:
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: admin
+      pass: admin
+      port: 5432
+      dbname: big_data_postgres
+      schema: public
+      threads: 4
+  target: dev
+  #
