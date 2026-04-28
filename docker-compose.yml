@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  # 1. Baza danych (Hurtownia Danych) - Twoja obecna
+  # 1. Baza danych
   db:
     image: postgres:16
     container_name: big_data_postgres
@@ -15,7 +15,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # 2. Spark (Konsument danych z kolejki) - Twój obecny
+  # 2. Spark
   spark-pipeline:
     image: apache/spark:3.5.0
     container_name: spark_worker
@@ -28,7 +28,7 @@ services:
       - db
       - kafka
 
-  # 3. Apache Kafka (System Kolejkowy w nowym trybie KRaft - lżejszy)
+  # 3. Apache Kafka w trybie KRaft
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka_broker
@@ -50,7 +50,7 @@ services:
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
-  # 4. Apache Airflow (Orkiestrator - tryb standalone)
+  # 4. Apache Airflow
   airflow:
     image: apache/airflow:2.9.0-python3.10
     container_name: airflow_standalone
@@ -61,10 +61,10 @@ services:
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW_HOME=/opt/airflow
     volumes:
-      - ./orchestration/dags:/opt/airflow/dags # Tu będą leżeć pliki konfiguracyjne Airflow
-      - .:/opt/airflow/project # Dostęp do kodu projektu
-      - /var/run/docker.sock:/var/run/docker.sock # Pozwala Airflow kontrolować Sparka
-    user: root # Wymagane, aby Airflow mógł korzystać z docker.sock
+      - ./orchestration/dags:/opt/airflow/dags
+      - .:/opt/airflow/project
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root
     depends_on:
       - db
       - kafka
