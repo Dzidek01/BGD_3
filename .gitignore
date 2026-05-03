@@ -4,3 +4,4 @@ data/
 dbt_ecommerce/logs/
 dbt_ecommerce/target/
 dbt_ecommerce/.user.yml
+__pycache__
