@@ -11,7 +11,7 @@ default_args = {
 with DAG(
     dag_id='ecommerce_big_data_pipeline',
     default_args=default_args,
-    description='Automatyczny potok ETL: Kafka -> Spark -> Postgres -> dbt',
+    description='Automatic Pipeline ETL: Kafka -> Spark -> Postgres -> dbt',
     schedule=timedelta(hours=1), 
     start_date=datetime(2023, 1, 1),
     catchup=False,
