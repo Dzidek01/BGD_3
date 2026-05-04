@@ -41,21 +41,21 @@ graph TD
 
     %% Data Source & Ingestion
     subgraph Data_Ingestion ["Ingestion"]
-        CSV[Raw CSV Data<br/>2019-Nov.csv]
+        CSV["Raw CSV Data (2019-Nov.csv)"]
         KafkaProducer[kafka_producer.py]
-        KafkaBroker{Apache Kafka Broker}
+        KafkaBroker{"Apache Kafka Broker"}
     end
 
     %% Stream Processing
     subgraph Stream_Processing ["Processing (PySpark)"]
-        SparkStream[spark_load.py<br/>Structured Streaming]
+        SparkStream["spark_load.py (Structured Streaming)"]
     end
 
     %% Data Warehouse
     subgraph Data_Warehouse_Postgres ["Data Warehouse (PostgreSQL)"]
-        Bronze[(Bronze: raw_events)]
-        Silver[(Silver: silver_products, silver_events)]
-        Gold[(Gold: gold_brand_metrics)]
+        Bronze[("Bronze: raw_events")]
+        Silver[("Silver: silver_products / silver_events")]
+        Gold[("Gold: gold_brand_metrics")]
     end
 
     %% dbt Transformation
@@ -64,33 +64,33 @@ graph TD
     end
 
     %% Data Flow
-    CSV -->|Reads| KafkaProducer
-    KafkaProducer -->|Publishes Events| KafkaBroker
-    KafkaBroker -->|Consumes Stream| SparkStream
-    SparkStream -->|Writes (JDBC)| Bronze
+    CSV --> KafkaProducer
+    KafkaProducer -->|Publishes| KafkaBroker
+    KafkaBroker -->|Consumes| SparkStream
+    SparkStream -->|JDBC Write| Bronze
 
-    Bronze -->|Reads| dbtModels
-    dbtModels -->|Creates/Updates| Silver
-    Silver -->|Reads| dbtModels
-    dbtModels -->|Creates/Updates| Gold
+    Bronze --> dbtModels
+    dbtModels --> Silver
+    Silver --> dbtModels
+    dbtModels --> Gold
 
     Airflow -.->|Triggers Task 1| KafkaProducer
     Airflow -.->|Triggers Task 2| dbtModels
 
     %% Styling
-    classDef database fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef script fill:#bbf,stroke:#333,stroke-width:1px;
-    classDef model fill:#dfd,stroke:#333,stroke-width:1px;
-    classDef data fill:#eee,stroke:#333,stroke-width:1px;
-    classDef messaging fill:#ff9,stroke:#333,stroke-width:2px;
-    classDef orchestrator fill:#fdd,stroke:#333,stroke-width:2px;
+    classDef dbStyle fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef scriptStyle fill:#bbf,stroke:#333,stroke-width:1px;
+    classDef modelStyle fill:#dfd,stroke:#333,stroke-width:1px;
+    classDef dataStyle fill:#eee,stroke:#333,stroke-width:1px;
+    classDef messagingStyle fill:#ff9,stroke:#333,stroke-width:2px;
+    classDef orchStyle fill:#fdd,stroke:#333,stroke-width:2px;
 
-    class Bronze,Silver,Gold database;
-    class KafkaProducer,SparkStream script;
-    class dbtModels model;
-    class CSV data;
-    class KafkaBroker messaging;
-    class Airflow orchestrator;
+    class Bronze,Silver,Gold dbStyle;
+    class KafkaProducer,SparkStream scriptStyle;
+    class dbtModels modelStyle;
+    class CSV dataStyle;
+    class KafkaBroker messagingStyle;
+    class Airflow orchStyle;
 ```
 
 Getting Started
