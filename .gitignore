@@ -5,3 +5,4 @@ dbt_ecommerce/logs/
 dbt_ecommerce/target/
 dbt_ecommerce/.user.yml
 __pycache__
+dbt_ecommerce/profiles.yml

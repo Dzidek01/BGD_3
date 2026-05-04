@@ -27,7 +27,7 @@ with DAG(
     # Uruchamiamy dbt
     run_dbt = BashOperator(
         task_id='run_dbt_transformations',
-        bash_command='python -m pip install dbt-postgres && cd /opt/airflow/project/dbt_ecommerce && dbt run --profiles-dir .'
+        bash_command='python -m pip install dbt-postgres && cd /opt/airflow/project/dbt_ecommerce && dbt clean && dbt run --profiles-dir .'
     )
 
     run_producer >> run_dbt

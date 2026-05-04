@@ -2,7 +2,7 @@ dbt_ecommerce:
   outputs:
     dev:
       type: postgres
-      host: localhost
+      host: big_data_postgres
       user: admin
       pass: admin
       port: 5432
