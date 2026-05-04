@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  # 1. Baza danych
+  # 1. Database
   db:
     image: postgres:16
     container_name: big_data_postgres
@@ -28,7 +28,7 @@ services:
       - db
       - kafka
 
-  # 3. Apache Kafka w trybie KRaft
+  # 3. Apache Kafka
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka_broker
