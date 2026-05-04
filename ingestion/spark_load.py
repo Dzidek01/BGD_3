@@ -5,7 +5,7 @@ from pyspark.sql.functions import from_json, col
 
 def main():
     # Define database configuration and paths
-    DB_URL = "jdbc:postgresql://big_data_postgres:5432/big_data_postgres"
+    DB_URL = "jdbc:postgresql://db:5432/big_data_postgres"
     DB_PROPERTIES = {
         "user": "admin",
         "password": "admin",
@@ -36,7 +36,7 @@ def main():
     try:
         df = spark.readStream \
             .format("kafka") \
-            .option("kafka.bootstrap.servers", "kafka_broker:9092") \
+            .option("kafka.bootstrap.servers", "kafka:29092") \
             .option("subscribe", TARGET_TABLE) \
             .option("startingOffsets", "earliest") \
             .load()
@@ -60,6 +60,7 @@ def main():
             .foreachBatch(write_to_postgres) \
             .outputMode("append") \
             .option("checkpointLocation", "/opt/spark/checkpoints/raw_events") \
+            .trigger(availableNow=True) \
             .start()
 
         query.awaitTermination()

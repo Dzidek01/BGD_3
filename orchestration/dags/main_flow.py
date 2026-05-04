@@ -24,10 +24,16 @@ with DAG(
         bash_command='python /opt/airflow/project/ingestion/kafka_producer.py'
     )
 
+    #Start spark
+    run_spark = BashOperator(
+    task_id='run_spark_ingestion',
+    bash_command='docker exec spark_worker python /opt/airflow/project/ingestion/spark_load.py',
+    )
+
     # Start dbt
     run_dbt = BashOperator(
         task_id='run_dbt_transformations',
         bash_command='cd /opt/airflow/project/dbt_ecommerce && dbt clean && dbt run --profiles-dir .'
     )
 
-    run_producer >> run_dbt
+    run_producer>> run_spark >> run_dbt

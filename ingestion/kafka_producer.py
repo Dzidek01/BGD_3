@@ -3,7 +3,7 @@ from kafka.errors import KafkaError
 import csv
 import json
 
-
+#Connection with Kafka container
 producer = KafkaProducer(bootstrap_servers=['kafka_broker:9092'],
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
