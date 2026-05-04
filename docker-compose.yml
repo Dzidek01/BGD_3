@@ -52,7 +52,7 @@ services:
 
   # 4. Apache Airflow
   airflow:
-    image: apache/airflow:2.9.0-python3.10
+    build: .
     container_name: airflow_standalone
     command: standalone
     ports:
@@ -65,7 +65,6 @@ services:
       - ./orchestration/dags:/opt/airflow/dags
       - .:/opt/airflow/project
       - /var/run/docker.sock:/var/run/docker.sock
-    user: root
     depends_on:
       - db
       - kafka

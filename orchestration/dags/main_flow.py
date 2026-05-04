@@ -18,16 +18,16 @@ with DAG(
     tags=['ecommerce', 'big_data'],
 ) as dag:
 
-    # Uruchamiamy producenta 
+    # Start producer
     run_producer = BashOperator(
         task_id='run_kafka_producer',
-        bash_command='python -m pip install kafka-python && python /opt/airflow/project/ingestion/kafka_producer.py'
+        bash_command='python /opt/airflow/project/ingestion/kafka_producer.py'
     )
 
-    # Uruchamiamy dbt
+    # Start dbt
     run_dbt = BashOperator(
         task_id='run_dbt_transformations',
-        bash_command='python -m pip install dbt-postgres && cd /opt/airflow/project/dbt_ecommerce && dbt clean && dbt run --profiles-dir .'
+        bash_command='cd /opt/airflow/project/dbt_ecommerce && dbt clean && dbt run --profiles-dir .'
     )
 
     run_producer >> run_dbt
