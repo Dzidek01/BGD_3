@@ -48,7 +48,7 @@ graph TD
 
     %% Stream Processing
     subgraph Stream_Processing ["Processing (PySpark)"]
-        SparkStream["spark_load.py (Structured Streaming)"]
+        SparkStream["spark_load.py (Trigger.AvailableNow)"]
     end
 
     %% Data Warehouse
@@ -74,8 +74,10 @@ graph TD
     Silver --> dbtModels
     dbtModels --> Gold
 
+    %% Orchestration Triggers
     Airflow -.->|Triggers Task 1| KafkaProducer
-    Airflow -.->|Triggers Task 2| dbtModels
+    Airflow -.->|Triggers Task 2| SparkStream
+    Airflow -.->|Triggers Task 3| dbtModels
 
     %% Styling
     classDef dbStyle fill:#f9f,stroke:#333,stroke-width:2px;
@@ -98,25 +100,20 @@ Getting Started
 Follow these steps to replicate the isolated containerized environment and run the pipeline locally.
 
 **1. Prerequisites**
-Docker Desktop installed and running.
 
-The raw data file (2019-Nov.csv) placed inside the ./data directory.
+- Docker Desktop installed and running.
+
+- The raw data file (2019-Nov.csv) placed inside the ./data directory.
 
 **2. Start the Infrastructure**
 Spin up the entire stack (PostgreSQL, Kafka, Spark, and custom Airflow image). The --build flag is required to build the custom Airflow image containing necessary dependencies.
 
-docker-compose up -d --build
+_docker-compose up -d --build_
 
-**3. Start PySpark Streaming**
-To consume data from Kafka, the Spark session must be actively listening. Open a new terminal, enter the Spark worker container, and execute the streaming script:
-
-docker exec -it spark_worker bash
-python /opt/airflow/project/ingestion/spark_load.py
-
-**4. Access Airflow & Retrieve Password**
+**3. Access Airflow & Retrieve Password**
 During the first startup, Airflow generates a secure standalone admin password. Retrieve it by opening a new terminal tab and running:
 
-docker exec airflow_standalone cat /opt/airflow/standalone_admin_password.txt
+_docker exec airflow_standalone cat /opt/airflow/standalone_admin_password.txt_
 
 Log in to the Airflow UI:
 
@@ -126,18 +123,21 @@ Username: admin
 
 Password: (paste the retrieved password string)
 
-**5. Run the Pipeline**
+**4. Run the Pipeline**
+The entire pipeline is now fully automated. Airflow will sequentially run the Kafka Producer, trigger Spark to consume the data, and finally run the dbt transformations.
+
 In the Airflow UI, locate the ecommerce_big_data_pipeline DAG.
 
 Toggle the switch on the left to unpause the DAG.
 
 In the Actions column on the right, click the Play button and select Trigger DAG.
 
-Navigate to the Graph view to monitor the Kafka ingestion and dbt transformation tasks in real-time.
+Navigate to the Graph view to monitor the progress in real-time.
 
 **6. View Results**
-Once the Airflow tasks complete successfully, connect to the PostgreSQL database via a SQL client (e.g., pgAdmin or DBeaver) using the credentials defined in docker-compose.yml (localhost:5432, user: admin, pass: admin). Query the gold_brand_metrics table to view the final analytical reporting data.
+Once all Airflow tasks complete successfully, connect to the PostgreSQL database via a SQL client (e.g., pgAdmin or DBeaver) using the credentials defined in docker-compose.yml (localhost:5432, user: admin, pass: admin). Query the gold table to view the final analytical reporting data.
 
 Cleanup
 To safely shut down and remove all containers, networks, and images created by this project, run:
-docker-compose down
+
+_docker-compose down_
