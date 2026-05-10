@@ -1,7 +1,7 @@
 data_product:
   name: "E-Commerce Brand Performance Metrics"
   owner: "Adam D"
-  owner_contact: "36255"
+  owner_contact: "via Teams"
   purpose: "Provides aggregated e-commerce performance metrics per brand (views, purchases, conversion rates, and revenue). Designed for marketing analysis and sales performance tracking."
 
   data_sources:
