@@ -1,0 +1,64 @@
+data_product:
+  name: "E-Commerce Brand Performance Metrics"
+  owner: "Adam D"
+  owner_contact: "36255"
+  purpose: "Provides aggregated e-commerce performance metrics per brand (views, purchases, conversion rates, and revenue). Designed for marketing analysis and sales performance tracking."
+
+  data_sources:
+    - "Raw e-commerce event stream (Kaggle dataset: November 2019)"
+
+  refresh_frequency: "Automated via Apache Airflow (Batch processing of streaming data)"
+
+  access_method:
+    technology: "PostgreSQL"
+    host: "localhost"
+    port: 5432
+    database: "big_data_postgres"
+    schema: "public"
+    table: "gold"
+
+  schema:
+    - column_name: "brand"
+      data_type: "VARCHAR"
+      description: "Name of the product brand."
+    - column_name: "total_views"
+      data_type: "INTEGER"
+      description: "Count of 'view' events for the specific brand."
+    - column_name: "total_purchases"
+      data_type: "INTEGER"
+      description: "Count of 'purchase' events for the specific brand."
+    - column_name: "conversion_rate"
+      data_type: "NUMERIC"
+      description: "Ratio of purchases to views (expressed as a percentage)."
+    - column_name: "total_revenue"
+      data_type: "NUMERIC"
+      description: "Sum of prices for all items purchased from this brand."
+
+  quality_metrics:
+    completeness:
+      definition: "% of rows where user_id and product_id are not null"
+      value: "100.00%"
+      threshold: "> 99%"
+    validity:
+      definition: "% of rows where price is greater than 0"
+      value: "99.72%"
+      threshold: "> 99%"
+    uniqueness:
+      definition: "% of unique brand records in the gold table"
+      value: "100.00%"
+      threshold: "100%"
+
+  known_limitations:
+    - "Historical data snapshot from 2019; not reflecting 2026 market trends."
+    - "Transactions with missing prices or negative values are filtered out in the Silver layer."
+
+  example_usage:
+    sql: |
+      SELECT 
+        brand, 
+        total_revenue, 
+        conversion_rate 
+      FROM gold 
+      WHERE total_views > 1000 
+      ORDER BY total_revenue DESC 
+      LIMIT 10;
