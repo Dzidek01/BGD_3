@@ -95,6 +95,16 @@ graph TD
     class Airflow orchStyle;
 ```
 
+## Data Quality & Data Contract
+
+To ensure the reliability of the data provided to downstream consumers, this repository includes a **Data Product Contract** (`data_product_contract.yaml`). This file defines the explicit schema, usage guidelines, and service level agreements (SLAs) for the data product.
+
+Key data quality metrics are strictly enforced and monitored:
+
+- **Completeness:** 100% of non-null values for critical tracking identifiers (`user_id` & `product_id`).
+- **Validity:** 99.72% of purchase events contain valid, positive pricing structures.
+- **Uniqueness:** 100% unique brand records in the final `gold` reporting table.
+
 Getting Started
 
 Follow these steps to replicate the isolated containerized environment and run the pipeline locally.
